@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete {{ employee.name }} | Employee Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title">
+    <h1>Confirm Deletion</h1>
+    <p>Are you sure you want to remove this employee record?</p>
+  </div>
+</div>
+
+<div class="form-card" style="border-color: var(--danger-color);">
+  <h3 style="color: var(--danger-color); margin-bottom: 0.75rem;">Warning: Irreversible Action</h3>
+  <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+    You are about to permanently delete <strong>{{ employee.name }}</strong> ({{ employee.designation }} in {{ employee.department }}). This record cannot be recovered.
+  </p>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-actions">
+      <a href="{% url 'employee_detail' employee.pk %}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-danger">Yes, Delete Employee</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

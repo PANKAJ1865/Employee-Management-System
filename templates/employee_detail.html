@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ employee.name }} | Employee Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title">
+    <h1>Employee Profile</h1>
+    <p>Detailed overview for {{ employee.name }}</p>
+  </div>
+  <div class="action-group">
+    <a href="{% url 'employee_list' %}" class="btn btn-secondary">&larr; Back to Dashboard</a>
+    <a href="{% url 'employee_update' employee.pk %}" class="btn btn-primary">Edit Profile</a>
+    <form method="POST" action="{% url 'employee_delete' employee.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete employee &quot;{{ employee.name|escapejs }}&quot;? This action cannot be undone.');">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Delete Record</button>
+    </form>
+  </div>
+</div>
+
+<div class="detail-card">
+  <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+    <div>
+      <h2 style="font-size: 1.5rem; color: var(--text-main);">{{ employee.name }}</h2>
+      <p style="color: var(--primary-accent); font-weight: 600;">{{ employee.designation }}</p>
+    </div>
+    <span class="badge badge-dept" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">{{ employee.department }}</span>
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-item">
+      <div class="detail-label">Email Address</div>
+      <div class="detail-value">{{ employee.email }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Phone Number</div>
+      <div class="detail-value">{{ employee.phone }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Department</div>
+      <div class="detail-value">{{ employee.department }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Designation</div>
+      <div class="detail-value">{{ employee.designation }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Salary</div>
+      <div class="detail-value" style="color: var(--success-color);">${{ employee.salary|floatformat:2 }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Date Joined</div>
+      <div class="detail-value">{{ employee.date_joined|date:"F d, Y" }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

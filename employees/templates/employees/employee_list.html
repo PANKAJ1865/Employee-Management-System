@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | Employee Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title">
+    <h1>Employees Dashboard</h1>
+    <p>Manage employee records, designations, and departmental statistics</p>
+  </div>
+  <a href="{% url 'employee_create' %}" class="btn btn-primary">+ Add New Employee</a>
+</div>
+
+<!-- Stats Summary Grid -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Employees</div>
+    <div class="stat-value">{{ total_employees }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Total Annual Payroll</div>
+    <div class="stat-value">${{ total_payroll|floatformat:2 }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Average Salary</div>
+    <div class="stat-value">${{ avg_salary|floatformat:2 }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Departments</div>
+    <div class="stat-value">{{ departments|length }}</div>
+  </div>
+</div>
+
+<!-- Live Instant Filter & Server Filter Toolbar -->
+<div class="toolbar-card">
+  <div style="display: flex; gap: 1rem; width: 100%; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+    <!-- Live Instant Search Input (No Page Reload) -->
+    <div style="flex: 1; min-width: 280px; max-width: 500px;">
+      <input type="text" id="liveSearchInput" placeholder="🔍 Live filter by name, department, or designation..." class="search-input" style="width: 100%; font-size: 0.95rem; padding: 0.7rem 1rem;">
+    </div>
+
+    <!-- Department Filter Dropdown -->
+    <form method="GET" class="search-form" style="flex: initial;">
+      <select name="department" class="select-input" onchange="this.form.submit()">
+        <option value="">All Departments</option>
+        {% for dept in departments %}
+          <option value="{{ dept }}" {% if dept_filter == dept %}selected{% endif %}>{{ dept }}</option>
+        {% endfor %}
+      </select>
+      {% if search_query or dept_filter %}
+        <a href="{% url 'employee_list' %}" class="btn btn-secondary btn-sm">Clear Filter</a>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<!-- Employee Table -->
+<div class="table-card">
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th class="sortable" data-sort-type="text" data-col-idx="0">Name <span class="sort-icon">↕</span></th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th class="sortable" data-sort-type="text" data-col-idx="3">Department <span class="sort-icon">↕</span></th>
+          <th>Designation</th>
+          <th class="sortable" data-sort-type="number" data-col-idx="5">Salary <span class="sort-icon">↕</span></th>
+          <th class="sortable" data-sort-type="date" data-col-idx="6">Date Joined <span class="sort-icon">↕</span></th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in employees %}
+          <tr>
+            <td>
+              <a href="{% url 'employee_detail' emp.pk %}" class="emp-name">{{ emp.name }}</a>
+            </td>
+            <td>{{ emp.email }}</td>
+            <td>{{ emp.phone }}</td>
+            <td><span class="badge badge-dept">{{ emp.department }}</span></td>
+            <td>{{ emp.designation }}</td>
+            <td>${{ emp.salary|floatformat:2 }}</td>
+            <td>{{ emp.date_joined|date:"M d, Y" }}</td>
+            <td>
+              <div class="action-group">
+                <a href="{% url 'employee_detail' emp.pk %}" class="btn btn-secondary btn-sm">View</a>
+                <a href="{% url 'employee_update' emp.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+                <form method="POST" action="{% url 'employee_delete' emp.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete employee &quot;{{ emp.name|escapejs }}&quot;? This action cannot be undone.');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+              <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No employees found</p>
+              <p style="font-size: 0.85rem;">Click <strong>"+ Add New Employee"</strong> to populate your records.</p>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/search.js' %}"></script>
+{% endblock %}
